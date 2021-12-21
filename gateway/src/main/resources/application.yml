@@ -1,0 +1,71 @@
+server:
+  port: 8088
+# 서브도메인과 메인도메인을 다루는 각각의 백엔드와 프런트엔드 서버를 연결해주는 게이트웨이 서버를 8088 포트로 설정
+
+---
+
+spring:
+  profiles: default
+  cloud:
+    gateway:
+      routes:
+        - id: backend
+          uri: http://localhost:8080
+          predicates:
+            - Path=/cats/**, /pets/**, /dogs/**
+        # 메인도메인을 포함한 백엔드 서버의 url을 8080 포트로 지정. 접근 패스로 /cats, /pets, /dogs를 포함하는 주소값 설정
+        - id: backend-subdomain
+          uri: http://localhost:8083
+          predicates:
+            - Path=/customers/**, /cartItems/**
+        # 서브도메인을 포함한 백엔드 서버의 url을 8083 포트로 지정. 접근 패스로 /customers, /cartItem를 포함하는 주소값 설정
+        - id: frontend-subdomain
+          uri: http://localhost:8082
+          predicates:
+            - Path=/shop/**, /shop/js/**
+        # 서브도메인 부분을 나타내는 UI를 포함한 프런트엔드의 url을 8082 포트로 지정. 접근 패스로 /shop, /shop/js를 포함하는 주소값 설정
+        - id: frontend
+          uri: http://localhost:8081
+          predicates:
+            - Path=/**
+        # 메인도메인 부분을 나타내는 UI를 포함한 프런트엔드의 url을 8081 포트로 지정. 위의 코드에서 지정되지 않은 주소값을 접근 패스로 설정
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "*"
+            allowedMethods:
+              - "*"
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+
+
+---
+
+spring:
+  profiles: docker
+  cloud:
+    gateway:
+      routes:
+        - id: BoundedContext779
+          uri: http://BoundedContext779:8080
+          predicates:
+            - Path= 
+        - id: frontend
+          uri: http://frontend:8081
+          predicates:
+            - Path=/**
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "*"
+            allowedMethods:
+              - "*"
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+
+server:
+  port: 8080
